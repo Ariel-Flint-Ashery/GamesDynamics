@@ -71,7 +71,7 @@ def trainDualLearnerCurrent(G, iterations):
         rmStrats.append(rmStrategy)
         rlStrats.append(rlStrategy)
         rlAvgUtility.append(utilityAverage(s, k, rlStrategy, rmStrategy, val))
-        rmAvgUtility.append(utilityAverage(s, k, rmStrategy, rlStrategy, val), enemy = True)
+        rmAvgUtility.append(utilityAverage(s, k, rmStrategy, rlStrategy, val, enemy = True))
     return (rlStrats, rmStrats), R, (rlAvgUtility, rmAvgUtility)
 #%%
 def trainDualLearner(G, regretSum, iterations):
@@ -346,13 +346,14 @@ plt.show()
 # plt.savefig('Dual Learner Current Maximum change in strategy RM.png')
 # plt.show()
 #%%
-"RUN TRAIN CURRENT FOR ASYMMETRIC BLOTTO GAME"
+"RUN TRAIN CURRENT FOR ASYMMETRIC RESOURCE BLOTTO GAME"
 #initialise
-s = [5,4]
+s = [4,5]
 G = generateGame(s, 3, [1, 1, 1])
 s, k, a, val = G
 #iterations = 50000
-iterations = 1000
+iterations = 5000
+#%%
 #run
 strats, regret, avgUtility = trainDualLearnerCurrent(G, iterations)
 #%%
@@ -380,18 +381,34 @@ plt.grid()
 plt.savefig(f'Dual Learner Current Regret truncated at {prange}, {iterations} its, _{s}_{val}.png')
 plt.show()
 #%%
+prange = 5000
+plt.plot(np.array(range(iterations))[:prange]+1, regret[:prange])
+plt.xlabel('Iterations')
+plt.ylabel('Regret')
+plt.grid()
+plt.savefig(f'Dual Learner Current Regret truncated at {prange}, {iterations} its, _{s}_{val}.png')
+plt.show()
+
+#%%
 #plot average utility
-plt.plot(range(iterations), avgUtility)
+plt.plot(range(iterations), avgUtility[0])
 plt.xlabel('Iterations')
 plt.ylabel('Average Utility')
 plt.grid()
-plt.savefig(f'Dual Learner Current Average Utility {iterations} its _{s}_{val}')
+plt.savefig(f'Dual Learner Current Average Utility Player 1 {iterations} its _{s}_{val}')
+plt.show()
+
+plt.plot(range(iterations), avgUtility[1])
+plt.xlabel('Iterations')
+plt.ylabel('Average Utility')
+plt.grid()
+plt.savefig(f'Dual Learner Current Average Utility Player 2 {iterations} its _{s}_{val}')
 plt.show()
 
 #%%
 #calculate correlation
-corr = np.corrcoef(regret[50:2000], avgUtility[50:2000])
-print(corr)
+# corr = np.corrcoef(regret[50:2000], avgUtility[50:2000])
+# print(corr)
 #%%
 #calculate average change in strategy vector
 ds1 = [sum(np.array(strats[0][i+1])-np.array(strats[0][i]))/a[0] for i in range(len(strats[0])-1)]
@@ -413,5 +430,87 @@ plt.savefig(f'Dual Learner Current Average change in strategy RM {iterations} it
 plt.show()
 
 #%%
+"RUN TRAIN CURRENT FOR ASYMMETRIC BLOTTO GAME"
+#initialise
+s = [4,5]
+G = generateGame(s, 3, [1, 1, 1.5])
+s, k, a, val = G
+#iterations = 50000
+iterations = 5000
+#%%
+#run
+strats, regret, avgUtility = trainDualLearnerCurrent(G, iterations)
+#%%
+#save simulation
+with open(f'dualcstrat1_{iterations}_{s}_{val}.pkl', 'wb') as f:
+    pkl.dump(strats[0], f)
+with open('dualcstrat2_{iterations}_{s}_{val}.pkl', 'wb') as f:
+    pkl.dump(strats[1], f)  
+with open(f'dualcR_{iterations}_{s}_{val}.pkl', 'wb') as f:
+    pkl.dump(regret, f)  
+
+with open(f'dualcRLUtility_{iterations}_{s}_{val}.pkl', 'wb') as f:
+    pkl.dump(avgUtility[0], f)  
+
+with open(f'dualcRMUtility_{iterations}_{s}_{val}.pkl', 'wb') as f:
+    pkl.dump(avgUtility[1], f)  
+
+#%%    
+#plot regret
+prange = 1000
+plt.plot(np.array(range(iterations))[:prange]+1, regret[:prange])
+plt.xlabel('Iterations')
+plt.ylabel('Regret')
+plt.grid()
+plt.savefig(f'Dual Learner Current Regret truncated at {prange}, {iterations} its, _{s}_{val}.png')
+plt.show()
+
+prange = 5000
+plt.plot(np.array(range(iterations))[:prange]+1, regret[:prange])
+plt.xlabel('Iterations')
+plt.ylabel('Regret')
+plt.grid()
+plt.savefig(f'Dual Learner Current Regret truncated at {prange}, {iterations} its, _{s}_{val}.png')
+plt.show()
+
+#%%
+#plot average utility
+plt.plot(range(iterations), avgUtility[0])
+plt.xlabel('Iterations')
+plt.ylabel('Average Utility')
+plt.grid()
+plt.savefig(f'Dual Learner Current Average Utility Player 1 {iterations} its _{s}_{val}')
+plt.show()
+
+plt.plot(range(iterations), avgUtility[1])
+plt.xlabel('Iterations')
+plt.ylabel('Average Utility')
+plt.grid()
+plt.savefig(f'Dual Learner Current Average Utility Player 2 {iterations} its _{s}_{val}')
+plt.show()
+
+#%%
+#calculate correlation
+# corr = np.corrcoef(regret[50:2000], avgUtility[50:2000])
+# print(corr)
+#%%
+#calculate average change in strategy vector
+ds1 = [sum(np.array(strats[0][i+1])-np.array(strats[0][i]))/a[0] for i in range(len(strats[0])-1)]
+ds2 = [sum(np.array(strats[1][i+1])-np.array(strats[1][i]))/a[1] for i in range(len(strats[1])-1)]
+
+#plot average change in strategy vector
+plt.plot(np.array(range(iterations))[1:]+1, ds1, label = 'RL')
+plt.xlabel('Iterations')
+plt.ylabel('Average change in strategy')
+plt.grid()
+plt.savefig(f'Dual Learner Current Average change in strategy RL {iterations} its _{s}_{val}.png')
+plt.show()
+
+plt.plot(np.array(range(iterations))[1:]+1, ds2, label = 'RM')
+plt.xlabel('Iterations')
+plt.ylabel('Average change in strategy')
+plt.grid()
+plt.savefig(f'Dual Learner Current Average change in strategy RM {iterations} its _{s}_{val}.png')
+plt.show()
 
 

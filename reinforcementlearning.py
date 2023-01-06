@@ -174,8 +174,10 @@ plt.plot(np.array(range(len(averageEpsilon)))[:1000]+1, np.abs(averageEpsilon)[:
 plt.ylabel('Average epsilon')
 plt.xlabel('Iterations')
 #plt.legend()
-plt.savefig('RL Average Convergence Plot Pure Opp 1000.png')
+#plt.savefig('RL Average Convergence Plot Pure Opp 1000.png')
 plt.show()
+
+
 #%%
 curveFitPlotter(np.array(range(len(averageEpsilon)))[:30]+1, np.abs(averageEpsilon[:30]), '1', 'RL convergence linear Pure Opp')
 #curveFitPlotter(np.array(range(len(epsilonHistory[0]))[:10000])+1, np.abs(epsilonHistory[0])[:10000], '1', 'RL convergence linear')
