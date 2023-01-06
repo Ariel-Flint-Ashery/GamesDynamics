@@ -84,7 +84,7 @@ convergence hypothesis.
 
 df1 = stratTodf(s[0], rmStrats2P[0], k)
 df2 = stratTodf(s[1], rmStrats2P[1], k)
-
+df3 = stratTodf(s[0], (np.array(rmStrats2P[0])+np.array(rmStrats2P[1]))/2, k)
 #set colours
 colorList1 = ['red']*a[0]
 colorList2 = ['red']*a[1]
@@ -102,15 +102,40 @@ for i in range(len(colorList2)):
 #plot average strategies
 plotStrat(df1, 'Player 1 RM (Neller) Strategy 2 {iterations}', colorList1)
 plotStrat(df2, 'Player 2 RM (Neller) Strategy 2 {iterations}', colorList2)
+plotStrat(df3, 'JOINT RM (Neller) {iterations}', colorList2)
 #%%
+fig = plt.figure(constrained_layout=True, figsize = (12, 6))
+axs = fig.subplot_mosaic([['Left', 'TopRight'],['Left', 'BottomRight']],
+                          gridspec_kw={'width_ratios':[1.5, 1]})
+axs['Left'].set_title('(a)', fontsize = 16)
+axs['TopRight'].set_title('(b)', fontsize = 16)
+axs['BottomRight'].set_title('(c)', fontsize = 16)
+barsLeft = axs['Left'].bar(df3.index, df3.values.flatten(), color = colorList1)
+axs['Left'].set_xticklabels(df3.index, rotation=45, fontsize = 10)
+axs['Left'].set_ylabel('Probability')
+axs['Left'].set_xlabel('Action')
+
+barsTR = axs['TopRight'].bar(df1.index, df1.values.flatten(), color = colorList1)
+axs['TopRight'].set_xticklabels(df1.index, rotation=45, fontsize = 10)
+axs['TopRight'].set_ylabel('Probability')
+axs['TopRight'].set_xlabel('Action')
+
+barsBR = axs['BottomRight'].bar(df2.index, df2.values.flatten(), color = colorList1)
+axs['BottomRight'].set_xticklabels(df2.index, rotation=45, fontsize = 10)
+axs['BottomRight'].set_ylabel('Probability')
+axs['BottomRight'].set_xlabel('Action')
+
+plt.show()
+#%%
+actions = generateActions(s[0],k)
 dist = [0]*6
 for i in range(6):
-    for action,prob in zip(actions, rmStrats2P[1]):
+    for action,prob in zip(actions, df3.values.flatten()):
         dist[i] += action.count(i)*prob/3
 
 print(dist)
 #%%
-S = rmStrats2P[1]
+S = df3.values.flatten()
 s1 = S[2] + S[3] + S[11] + S[14] + S[15] + S[17]
 s2 = S[7] + S[9] + S[16]
 print(s1, s2)
